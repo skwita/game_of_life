@@ -6,8 +6,7 @@ from grid import Grid
 
 
 class GameOfLife:
-
-    def __init__(self, width: int = 640, height: int = 480, cell_size: int = 10, speed: int = 10) -> None:
+    def __init__(self, width: int = 640, height: int = 480, cell_size: int = 10, speed: int = 10):
         self.width = width
         self.height = height
         self.cell_size = cell_size
@@ -19,19 +18,27 @@ class GameOfLife:
         self.cell_width = int(self.width / self.cell_size)
         self.cell_height = int(self.height / self.cell_size)
 
-    def draw_grid(self, cur_grid) -> None:
+    def draw_grid(self, cur_grid):
         for x in range(int(self.width / self.cell_size)):
             for y in range(int(self.height / self.cell_size)):
                 if cur_grid.is_alive(x, y):
-                    pygame.draw.rect(self.screen, 'gray', (x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size))
+                    i = random.randint(-20, 20)
+                    j = random.randint(-20, 20)
+                    k = random.randint(-20, 20)
+                    # a, b, c = 235, 162, 52  # (orange)
+                    a, b, c = 149, 52, 235  # (purple)
+                    # a, b, c = 57, 235, 20  # (green)
+                    pygame.draw.rect(self.screen, (a + i, b + j, c + k),
+                                     (x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size))
                 else:
-                    pygame.draw.rect(self.screen, (48, 48, 48), (x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size))
+                    pygame.draw.rect(self.screen, (48, 48, 48),
+                                     (x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size))
         for x in range(0, self.width, self.cell_size):
             pygame.draw.line(self.screen, 'black', (x, 0), (x, self.height))
         for y in range(0, self.height, self.cell_size):
             pygame.draw.line(self.screen, 'black', (0, y), (self.width, y))
 
-    def run(self) -> None:
+    def run(self):
         pygame.init()
         cur_grid = game.create_grid()
         pygame.display.set_caption('Game of Life')
@@ -85,7 +92,7 @@ class GameOfLife:
             pygame.display.flip()
         pygame.quit()
 
-    def create_grid(self) -> Grid:
+    def create_grid(self):
         return Grid(self.width / self.cell_size, self.height / self.cell_size)
 
     def step(self, cur_grid):
@@ -109,5 +116,7 @@ class GameOfLife:
 
 if __name__ == '__main__':
     # game = GameOfLife(1920, 1000, 10)
-    game = GameOfLife(1000, 1000, 10)
+    # game = GameOfLife(1000, 1000, 10)
+    game = GameOfLife(1000, 1000, 5)
+
     game.run()
