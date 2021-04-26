@@ -1,5 +1,5 @@
 import random
-
+import threading
 import pygame
 from pygame.locals import *
 from grid import Grid
@@ -11,6 +11,8 @@ class GameOfLife:
         self.height = height
         self.cell_size = cell_size
         self.speed = speed
+
+        self.cur_grid = self.create_grid()
 
         self.screen_size = width, height
         self.screen = pygame.display.set_mode(self.screen_size)
@@ -40,7 +42,7 @@ class GameOfLife:
 
     def run(self):
         pygame.init()
-        cur_grid = game.create_grid()
+
         pygame.display.set_caption('Game of Life')
         self.screen.fill(pygame.Color((48, 48, 48)))
 
@@ -58,8 +60,8 @@ class GameOfLife:
                     x, y = pygame.mouse.get_pos()
                     x = int(x / self.cell_size)
                     y = int(y / self.cell_size)
-                    cur_grid.change_cell(x, y)
-                    is_alive = cur_grid.is_alive(x, y)
+                    self.cur_grid.change_cell(x, y)
+                    is_alive = self.cur_grid.is_alive(x, y)
                     is_pressed = True
 
                 if event.type == pygame.MOUSEBUTTONUP:
@@ -68,36 +70,63 @@ class GameOfLife:
                 if event.type == pygame.KEYDOWN:
                     keys = pygame.key.get_pressed()
                     if keys[K_UP]:
-                        cur_grid = self.step(cur_grid)
+                        cur_grid = self.step(self.cur_grid, 0, int(self.width / self.cell_size))
                     if keys[K_SPACE]:
                         temp_run = not temp_run
                     if keys[K_DELETE]:
-                        cur_grid.clear()
+                        self.cur_grid.clear()
                     if keys[K_r]:
-                        cur_grid.randomize()
+                        self.cur_grid.randomize()
 
             if is_pressed:
                 x, y = pygame.mouse.get_pos()
                 x = int(x / self.cell_size)
                 y = int(y / self.cell_size)
                 if not is_alive:
-                    cur_grid.kill(x, y)
+                    self.cur_grid.kill(x, y)
                 else:
-                    cur_grid.resurrect(x, y)
+                    self.cur_grid.resurrect(x, y)
 
             if temp_run:
-                cur_grid = self.step(cur_grid)
 
-            self.draw_grid(cur_grid)
+                # здесь пустить потоки
+                t1 = threading.Thread(target=self.step, args=(self.cur_grid, 0, int(int(self.width / self.cell_size) / 2)))
+                t2 = threading.Thread(target=self.step, args=(self.cur_grid, int(int(self.width / self.cell_size) / 2), int(self.width / self.cell_size)))
+                t1.start()
+                t2.start()
+                t1.join()
+                t2.join()
+
+                # cur_grid = self.step(cur_grid)
+
+            self.draw_grid(self.cur_grid)
             pygame.display.flip()
         pygame.quit()
 
     def create_grid(self):
         return Grid(self.width / self.cell_size, self.height / self.cell_size)
 
-    def step(self, cur_grid):
+    def step(self, cur_grid, begin, end):
         new_grid = self.create_grid()
-        for i in range(int(self.width / self.cell_size)):
+        real_begin = 0
+        real_end = int(self.width / self.cell_size)
+        if begin > real_begin:
+            for i in range(0, begin):
+                for j in range(int(self.height / self.cell_size)):
+                    alive = cur_grid.is_alive(i, j)
+                    if alive:
+                        new_grid.resurrect(i, j)
+                    else:
+                        new_grid.kill(i, j)
+        else:
+            for i in range(end, real_end):
+                for j in range(int(self.height / self.cell_size)):
+                    alive = cur_grid.is_alive(i, j)
+                    if alive:
+                        new_grid.resurrect(i, j)
+                    else:
+                        new_grid.kill(i, j)
+        for i in range(begin, end):
             for j in range(int(self.height / self.cell_size)):
                 num = cur_grid.get_neighbours(i, j)
                 alive = cur_grid.is_alive(i, j)
@@ -111,12 +140,13 @@ class GameOfLife:
                         new_grid.resurrect(i, j)
                     else:
                         new_grid.kill(i, j)
-        return new_grid
+        self.cur_grid = new_grid
+        # return new_grid
 
 
 if __name__ == '__main__':
     # game = GameOfLife(1920, 1000, 10)
     # game = GameOfLife(1000, 1000, 10)
-    game = GameOfLife(1000, 1000, 5)
+    game = GameOfLife(1000, 1000, 10)
 
     game.run()
