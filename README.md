@@ -3,7 +3,7 @@ Keys:
 Button | Description | Info
 :---|:-----------|:---
 __DELETE__|Completely clears grid|
-__SPACE__|Start continuous simulation|
+__SPACE__|Starts continuous simulation|
 __UP__|Performs one step|
 __R__|Fills grid randomly|
 __L__|Loads grid from presets|Filename should be "s*.txt"
