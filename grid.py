@@ -50,7 +50,7 @@ class Grid:
                     self.resurrect(i, j)
 
     def save(self) -> None:
-        file = open(f"s{time.time()}.txt", 'w')
+        file = open(f"presets/s{time.time()}.txt", 'w')
         file.write(f"{self.length} {self.length_in} \n")
         for i in range(self.length):
             for j in range(self.length_in):
