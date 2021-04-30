@@ -1,6 +1,6 @@
 # Conway's Game of Life
 ---
-####Keys:
+Keys:
 Button | Description | Info
 :---|:-----------|:---
 __DELETE__|Completely clears grid|
