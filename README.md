@@ -1,5 +1,4 @@
 # Conway's Game of Life
----
 Keys:
 Button | Description | Info
 :---|:-----------|:---
